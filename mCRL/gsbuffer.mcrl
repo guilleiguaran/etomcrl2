@@ -1,0 +1,98 @@
+%
+% GSBuffer contains the data for the buffer of a gen_server
+%
+
+sort
+   GSBuffer
+func
+   emptybuffer: -> GSBuffer
+   call: Term # Term # GSBuffer -> GSBuffer
+   cast: Term # GSBuffer -> GSBuffer
+   info: Term # GSBuffer -> GSBuffer
+map
+   % RECOGNIZERS
+   is_emptybuffer: GSBuffer -> Bool
+   is_call: GSBuffer -> Bool
+   is_cast: GSBuffer -> Bool
+   is_info: GSBuffer -> Bool
+ 
+   % DESTRUCTORS
+   call_pid: GSBuffer -> Term
+   call_term: GSBuffer -> Term
+   cast_term: GSBuffer -> Term
+   info_term: GSBuffer -> Term
+   rmhead: GSBuffer -> GSBuffer
+ 
+   % EQ 
+   eq: GSBuffer # GSBuffer -> Bool
+   maxbuffer: GSBuffer -> Bool
+   maxsize: GSBuffer # Natural -> Bool
+
+   %FUNCTIONS
+   addcall: Term # Term # GSBuffer -> GSBuffer
+   addcast: Term # GSBuffer -> GSBuffer
+   addinfo: Term # GSBuffer -> GSBuffer
+var
+   N: Natural
+   Pid1, T1, Pid2, T2: Term
+   B1, B2: GSBuffer
+rew
+   is_emptybuffer(emptybuffer) = T
+   is_emptybuffer(call(Pid1,T1,B1)) = F
+   is_emptybuffer(cast(T1,B1)) = F
+   is_emptybuffer(info(T1,B1)) = F
+   is_call(emptybuffer) = F
+   is_call(call(T1,Pid1,B1)) = T
+   is_call(cast(T1,B1)) = F
+   is_call(info(T1,B1)) = F
+   is_cast(emptybuffer) = F
+   is_cast(call(Pid1,T1,B1)) = F
+   is_cast(cast(T1,B1)) = T
+   is_cast(info(T1,B1)) = F
+   is_info(emptybuffer) = F
+   is_info(call(Pid1,T1,B1)) = F
+   is_info(cast(T1,B1)) = F
+   is_info(info(T1,B1)) = T
+ 
+   call_pid(call(T1,Pid1,B1)) = Pid1
+   call_term(call(T1,Pid1,B1)) = T1
+   cast_term(cast(T1,B1)) = T1
+   info_term(info(T1,B1)) = T1
+   rmhead(call(T1,Pid1,B1)) = B1
+   rmhead(cast(T1,B1)) = B1
+   rmhead(info(T1,B1)) = B1
+
+   addcall(T1,Pid1,emptybuffer) = call(T1,Pid1,emptybuffer)
+   addcall(T1,Pid1,cast(T2,B1)) = cast(T2,addcall(T1,Pid1,B1))
+   addcall(T1,Pid1,info(T2,B1)) = info(T2,addcall(T1,Pid1,B1))
+   addcall(T1,Pid1,call(T2,Pid2,B1)) = call(T2,Pid2,addcall(T1,Pid1,B1))
+   addcast(T1,emptybuffer) = cast(T1,emptybuffer)
+   addcast(T1,cast(T2,B1)) = cast(T2,addcast(T1,B1))
+   addcast(T1,info(T2,B1)) = info(T2,addcast(T1,B1))
+   addcast(T1,call(T2,Pid2,B1)) = call(T2,Pid2,addcast(T1,B1))
+   addinfo(T1,emptybuffer) = info(T1,emptybuffer)
+   addinfo(T1,cast(T2,B1)) = cast(T2,addinfo(T1,B1))
+   addinfo(T1,info(T2,B1)) = info(T2,addinfo(T1,B1))
+   addinfo(T1,call(T2,Pid2,B1)) = call(T2,Pid2,addinfo(T1,B1))
+ 
+   eq(emptybuffer,B2) = is_emptybuffer(B2)
+   eq(call(T1,Pid1,B1),B2) = and(is_call(B2),
+                                 and(eq(Pid1,call_pid(B2)),eq(T1,call_term(B2))))
+   eq(cast(T1,B1),B2) = and(is_cast(B2),eq(T1,cast_term(B2)))
+   eq(info(T1,B1),B2) = and(is_info(B2),eq(T1,info_term(B2)))
+ 
+   maxsize(B1,0) = not(is_emptybuffer(B1)) 
+   maxsize(emptybuffer,s(N)) = F
+   maxsize(call(T1,Pid1,B1),s(N)) = maxsize(B1,N)
+   maxsize(cast(T1,B1),s(N)) = maxsize(B1,N)
+   maxsize(info(T1,B1),s(N)) = maxsize(B1,N)
+
+  % At compile time initialize maxbuffer
+  %
+  % Buffer can be made bound to certain size by changing
+  % maxbuffer(B1) = F to 
+  % maxbuffer(B1) = maxsize(B1,N) with N:Natural >= 0
+  % (size zero means synchronization on all communication with server)
+  %
+  % maxbuffer(B1) = F
+

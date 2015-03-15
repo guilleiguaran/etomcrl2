@@ -1,0 +1,34 @@
+
+sort
+   GSBuffer
+func
+  emptybuffer: -> GSBuffer
+
+act
+gen_server_call, handle_call, call: Term # Term # Term
+gen_server_cast, handle_cast,cast: Term # Term
+send, handle_info,info: Term # Term
+gen_server_reply,gen_server_replied,reply: Term # Term # Term
+
+%for compatiblity reasons (hide/encap) we add:
+buffercall 
+buffercast
+bufferinfo
+bufferfull 
+gscall
+gscast
+gsinfo
+gshcall
+gshcast
+gshinfo
+
+
+comm
+gen_server_call | handle_call = call
+gen_server_cast | handle_cast = cast
+send | handle_info = info
+gen_server_reply | gen_server_replied = reply
+
+proc ServerBuffer(Buffer: GSBuffer) =
+  delta
+

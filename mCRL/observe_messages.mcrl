@@ -1,0 +1,7 @@
+act
+   omshow: Term # Term
+
+proc
+
+observe_messages_show(Arg1:Term, Arg2:Term) =
+          omshow(Arg1, Arg2). delta

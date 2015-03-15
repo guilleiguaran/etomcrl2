@@ -1,0 +1,42 @@
+%
+% Bool is needed by mCRL to compute equaltities and such. 
+% The values T and F are hardcoded values for true and false.
+%
+% The Translator should check that T and F do not end up to
+% be terms as well!
+%
+% This definition of Bool is optimized for strictleft strategy
+%
+
+sort
+     Bool
+func
+     T,F: -> Bool
+map
+     or,and,imp: Bool # Bool -> Bool
+     not: Bool -> Bool
+     eq: Bool # Bool -> Bool
+     if: Bool # Bool # Bool -> Bool
+var
+     B,B1,B2: Bool
+rew
+     or(T,B) = T
+     or(F,B) = B
+     or(B,T) = T
+     or(B,F) = B
+     and(T,B)= B
+     and(F,B)= F
+     and(B,F) = F
+     and(B,T) = B
+
+     imp(T,B) = B
+     imp(F,B) = T
+     not(T) = F
+     not(F) = T
+     if(T,B1,B2) = B1
+     if(F,B1,B2) = B2
+     eq(T,T) = T
+     eq(F,F) = T
+     eq(T,F) = F
+     eq(F,T) = F
+

@@ -1,0 +1,57 @@
+%
+% TermStack is used for function calls with side-effect that
+% return a value. Mainly located in the process "callstack".
+%
+
+sort
+   TermStack
+func
+   empty: -> TermStack
+   push: Term # TermStack -> TermStack
+map
+   % RECOGNIZERS
+   is_top: Term # TermStack -> Bool
+   is_empty: TermStack -> Bool
+
+   % DESTRUCTORS
+   pop: TermStack -> TermStack
+   top: TermStack -> Term
+
+   % EQ 
+   eq: TermStack # TermStack -> Bool
+var
+   S1,S2: TermStack
+   T1,T2: Term
+rew
+   is_top(T1,empty) = F
+   is_top(T1,push(T2,S1)) = eq(T1,T2)
+   is_empty(empty) = T
+   is_empty(push(T1,S1)) = F
+
+   pop(push(T1,S1)) = S1
+   top(push(T1,S1)) = T1
+
+   eq(empty,S2) = is_empty(S2)
+   eq(push(T1,S1),S2) = and(is_top(T1,S2),eq(S1,pop(S2)))
+
+act
+    rcallvalue,wcallresult,push_callstack: Term
+    rcallresult,wcallvalue,pop_callstack:  Term
+
+comm
+    rcallvalue | wcallresult = push_callstack
+    rcallresult | wcallvalue = pop_callstack
+
+
+proc 
+    CallStack(S:TermStack) =
+     sum(Value:Term,rcallvalue(Value).CallStack(push(Value,S))) +
+        (delta <| is_empty(S) |> wcallvalue(top(S)).CallStack(pop(S)))
+
+% use callstack:
+%
+% proc process_init(MCRLSelf,Arg1,...,ArgN) =
+%      hide({push_callstack,pop_callstack},
+%           encap({rcallvalue,wcallvalue,rcallresult,wcallresult},
+%                 CallStack(empty) || process(MCRLSelf,Arg1,...,ArgN)))
+

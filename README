@@ -1,0 +1,13 @@
+etomcrl
+-------
+
+In order to compile:
+
+   cd ebin; erl
+
+and inside the erlang shell type:
+
+   make:all()
+   
+Source code is read according to the paths 
+described in 'ebin/Emakefile' 

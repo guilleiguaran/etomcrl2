@@ -1,0 +1,46 @@
+%
+% Naturals easily grow too large, therefore they have to be encoded
+% in a base different from 1.
+%
+% Sep 2004, Thomas Arts
+
+sort
+     Natural
+func
+     0: -> Natural
+     s: Natural -> Natural
+map
+     % ARITHMETIC
+     plus,times,minus,rem,div: Natural # Natural -> Natural
+
+     % RELATIONS
+     eq,leq,less: Natural # Natural -> Bool
+     if: Bool # Natural # Natural -> Natural
+     
+var
+     N,N1,N2: Natural
+rew
+     plus(0,N) = N
+     plus(s(N1),N2) = s(plus(N1,N2))
+     minus(N1,0) = N1
+     minus(s(N1),s(N2)) = minus(N1,N2)
+     times(0,N) = 0
+     times(s(N1),N2) = plus(N2,times(N1,N2))
+     rem(N1,N2) = if(less(N1,N2),N1,rem(minus(N1,N2),N2))
+     div(N1,N2) = if(less(N2,N1),s(div(minus(N1,N2),N2)),0)
+
+     eq(0,0) = T
+     eq(0,s(N2)) = F
+     eq(s(N1),0) = F
+     eq(s(N1),s(N2)) = eq(N1,N2)
+     leq(0,N2) = T
+     leq(s(N1),0) = F
+     leq(s(N1),s(N2)) = leq(N1,N2)
+     less(N1,0) = F
+     less(0,s(N2)) = T
+
+     if(T,N1,N2) = N1
+     if(F,N1,N2) = N2
+
+% at compilation time the constant mappings are added here
+

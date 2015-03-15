@@ -1,0 +1,66 @@
+
+% Build in Functions 
+%
+% Some of these are not expressible in Erlang itself and hence have
+% to be provided directly as mcrl
+
+map
+     hd: Term -> Term
+     tl: Term -> Term
+     length: Term -> Term
+     element: Term # Term -> Term
+     tuple_to_list: Term -> Term
+     size: Term -> Term
+     equal: Term # Term -> Term
+     list_append, list_subtract, list_delete: Term # Term -> Term
+     mcrl_plus, mcrl_minus, mcrl_times, mcrl_div, mcrl_rem: Term # Term -> Term
+     mcrl_succ: Term -> Term
+     mcrl_leq, mcrl_geq, mcrl_less, mcrl_greater: Term # Term -> Term
+     and, or: Term # Term -> Term
+     not: Term -> Term
+var
+     H1,T1,MCRLTerm1,MCRLTerm2: Term
+     N,N1,N2: Natural
+rew
+     hd(cons(H1,T1)) = H1
+     tl(cons(H1,T1)) = T1
+     length(nil) = int(0)
+     length(cons(H1,T1)) = mcrl_succ(length(T1))
+     size(tuplenil(T1)) = mcrl_succ(int(0))
+     size(tuple(H1,T1)) = mcrl_succ(size(T1))
+     element(int(s(0)),tuplenil(T1)) = T1
+     element(int(s(0)),tuple(H1,T1)) = H1
+     element(int(s(s(N))),tuple(H1,T1)) = element(int(s(N)),T1)
+     tuple_to_list(tuplenil(T1)) = cons(T1,nil)
+     tuple_to_list(tuple(H1,T1)) = cons(H1,tuple_to_list(T1))
+     equal(MCRLTerm1,MCRLTerm2) = if(eq(MCRLTerm1,MCRLTerm2),true,false)
+     list_append(nil,MCRLTerm2) = MCRLTerm2
+     list_append(cons(H1,T1),MCRLTerm2) = cons(H1,list_append(T1,MCRLTerm2))
+     list_subtract(MCRLTerm1,nil) = MCRLTerm1
+     list_subtract(MCRLTerm1,cons(H1,T1)) = list_subtract(
+                                               list_delete(H1,MCRLTerm1),T1)
+     list_delete(H1,nil) = nil
+     list_delete(H1,cons(MCRLTerm1,T1)) = if(eq(H1,MCRLTerm1),T1,
+                                             cons(MCRLTerm1,list_delete(H1,T1)))
+     mcrl_plus(int(N1),int(N2)) = int(plus(N1,N2))
+     mcrl_minus(int(N1),int(N2)) = int(minus(N1,N2))
+     mcrl_times(int(N1),int(N2)) = int(times(N1,N2))
+     mcrl_rem(int(N1),int(N2)) = int(rem(N1,N2))
+     mcrl_div(int(N1),int(N2)) = int(div(N1,N2))
+     mcrl_succ(int(N)) = int(s(N))
+     mcrl_leq(int(N1),int(N2)) = if(leq(N1,N2),true,false)
+     mcrl_geq(int(N1),int(N2)) = if(leq(N2,N1),true,false)
+     mcrl_less(int(N1),int(N2)) = if(less(N1,N2),true,false)
+     mcrl_greater(int(N1),int(N2)) = if(less(N2,N1),true,false)
+     and(true,true) = true
+     and(true,false) = false
+     and(false,false) = false
+     and(false,true) = false
+     or(true,true) = true
+     or(true,false) = true
+     or(false,false) = false
+     or(false,true) = true
+     not(true) = false
+     not(false) = true
+
+

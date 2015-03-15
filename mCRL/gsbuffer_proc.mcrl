@@ -1,0 +1,56 @@
+
+act
+bufferfull: Term
+gen_server_call,gscall,buffercall: Term # Term # Term
+gen_server_cast,gscast,buffercast: Term # Term
+send,gsinfo,bufferinfo: Term # Term
+gshcall,handle_call,call: Term # Term # Term
+gshcast,handle_cast,cast: Term # Term
+gshinfo,handle_info,info: Term # Term
+gen_server_reply,gen_server_replied,reply: Term # Term # Term
+
+comm
+gen_server_call | gscall = buffercall
+gen_server_cast | gscast = buffercast
+send | gsinfo = bufferinfo
+gshcall | handle_call = call
+gshcast | handle_cast = cast
+gshinfo | handle_info = info
+gen_server_reply | gen_server_replied = reply
+
+
+proc
+    Server_Buffer(MCRLSelf: Term, Messages: GSBuffer) =
+     (bufferfull(MCRLSelf).
+      (gshcast(MCRLSelf,cast_term(Messages)).
+         Server_Buffer(MCRLSelf,rmhead(Messages))
+       <| is_cast(Messages) |>
+       (gshinfo(MCRLSelf,info_term(Messages)).
+          Server_Buffer(MCRLSelf,rmhead(Messages))
+        <| is_info(Messages) |>
+        (gshcall(MCRLSelf,call_term(Messages),call_pid(Messages)).
+           Server_Buffer(MCRLSelf,rmhead(Messages))
+         <| is_call(Messages) |>
+         delta))))
+     <| maxbuffer(Messages) |>
+     (sum(Msg: Term,
+          sum(From: Term,
+              gscall(MCRLSelf, Msg, From).
+              Server_Buffer(MCRLSelf, addcall(Msg,From,Messages)))) +
+      sum(Msg: Term,
+          gscast(MCRLSelf, Msg).
+          Server_Buffer(MCRLSelf, addcast(Msg,Messages))) +
+      sum(Msg: Term,
+          gsinfo(MCRLSelf, Msg).
+          Server_Buffer(MCRLSelf, addinfo(Msg,Messages))) +
+      (gshcast(MCRLSelf,cast_term(Messages)).
+         Server_Buffer(MCRLSelf,rmhead(Messages))
+       <| is_cast(Messages) |>
+       (gshinfo(MCRLSelf,info_term(Messages)).
+          Server_Buffer(MCRLSelf,rmhead(Messages))
+        <| is_info(Messages) |>
+        (gshcall(MCRLSelf,call_term(Messages),call_pid(Messages)).
+           Server_Buffer(MCRLSelf,rmhead(Messages))
+         <| is_call(Messages) |>
+         delta))))
+
